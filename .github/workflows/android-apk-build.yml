@@ -1,0 +1,60 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout kode sumber
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Setup Java
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Cache Gradle dependencies
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}
+
+      # Build APK
+      - name: Build APK
+        run: ./gradlew assembleRelease
+
+      # Upload APK as an artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: app/build/outputs/apk/release/*.apk
+
+      # Decode keystore file
+      - name: Decode Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > keystore.jks
+
+      # Build APK with signing config
+      - name: Build Signed APK
+        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=keystore.jks \
+                                       -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
+                                       -Pandroid.injected.signing.key.alias=${{ secrets.KEY_ALIAS }} \
+                                       -Pandroid.injected.signing.key.password=${{ secrets.KEY_PASSWORD }}
+
