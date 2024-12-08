@@ -63,8 +63,4 @@ jobs:
 
       # Build APK with signing config
       - name: Build Signed APK
-        run: ./gradlew assembleRelease -Pandroid.injected.signing.store.file=$STORE_FILE \
-                                       -Pandroid.injected.signing.store.password=$KEY_ALIAS \
-                                       -Pandroid.injected.signing.key.alias=$KEY_PASSWORD \
-                                       -Pandroid.injected.signing.key.password=$KEYSTORE_PASSWORD
-
+        run: ./gradlew assembleRelease -Pandroid.injected.signing.store=$STORE_FILE -Pandroid.injected.signing.keyAlias=$KEY_ALIAS -Pandroid.injected.signing.keyPassword=$KEY_PASSWORD -Pandroid.injected.signing.storePassword=$KEYSTORE_PASSWORD
