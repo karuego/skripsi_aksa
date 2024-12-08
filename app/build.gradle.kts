@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "org.zigatur.skripsi_aksa"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.zigatur.skripsi_aksa"
